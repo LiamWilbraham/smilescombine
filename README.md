@@ -1,5 +1,5 @@
 ## `smilesenumerator` :computer:
-High-level API for combining smiles 'skeletons' with functional group substituents in a combinatorial fashion.
+Python library for combining smiles 'skeletons' with functional group substituents in a combinatorial fashion.
 
 `smilesenumerator` provides molecular building blocks (in the form of SMILES strings) that can be used in combination 
 supramolecular structure-building software such as `stk`. Alternatively, the bulding blocks can be used to generate molecular
