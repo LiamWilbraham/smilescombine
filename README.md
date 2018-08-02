@@ -1,4 +1,4 @@
-## `smilesenumerator` :computer:
+  ## `smilescombine` :computer:
 Python library for combining smiles 'skeletons' with functional group substituents in a combinatorial fashion.
 
 `smilesenumerator` provides molecular building blocks (in the form of SMILES strings) that can be used in combination 
