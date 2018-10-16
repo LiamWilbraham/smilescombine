@@ -5,11 +5,17 @@ import rdkit, rdkit.Chem as rdkit
 import itertools
 
 class Combiner:
-
     """
-    Base Skeleton class. Once initialized, can be used to combine a skeleton
-    combinatorially with substituents and write the resulting substituted
-    molecules in *.mol file format.
+    Base Combiner class. Used to combine an aromatic molecular skeleton
+    combinatorially with a list of substituents. Substituents are placed
+    on arbitrary molecular skeletons. Substitution sites may either be
+    specified randomly or identified automatically (i.e. all available aromatic
+    carbon atoms).
+
+    Combiner can be used to produce standalone substituted molecules, but is
+    also intended for use in conjunction with STK (https://github.com/lukasturcani/stk)
+    to construct structured libraries of supramolecules. Therefore, the number of
+    required connection atoms and their labels (required by STK) may also be specified.
     """
 
     def __init__(self, skeleton, substituents, nmax=None, nconnect=1,
@@ -21,32 +27,16 @@ class Combiner:
         self.nconnect = nconnect
         self.connect_atom = connect_atom
         self.auto_placement = auto_placement
+        self.combinations = []
 
 
     def combine_substituents(self):
 
         """
-        Get all possible unique structures formed from the skeleton &
-        each of the substituents, retaining two Br functional groups
-        to be used later when forming supramolecular structure.
-
-        Arguments
-        ---------
-
-        skeleton : `str` SMILES string describing skeleton onto which
-            substituents will be places. See README.md for how
-            skeleton SMILES should be specified.
-
-        Returns
-        -------
-
-        canonical_smiles : `list` All unique SMILES obtained
-             by placing maximum of two substituents on a molecular
-             skeleton.
-
+        Generates all possible unique structures formed from the skeleton &
+        each of the substituents.
         """
 
-        smiles = []
         if self.auto_placement:
             template = self.skeleton_smiles.replace('c', 'c{}')
         else:
@@ -62,41 +52,32 @@ class Combiner:
                 raise SpecificationError(
                     "Number of connections cannot be greater than the maximum number of allowed substitutions.")
 
-        unique_smiles = []
         for smiles in self.get_substituent_permutations(template):
-            if smiles not in unique_smiles:
-                unique_smiles.append(smiles)
-        unique_smiles = sorted(unique_smiles)
+            if smiles not in self.combinations:
+                self.combinations.append(smiles)
+        self.combinations = sorted(self.combinations, reverse=True)
+        self.n_combinations = len(self.combinations)
 
-        print('Skeleton:', self.skeleton_smiles)
+        print('Skeleton SMILES:', self.skeleton_smiles)
         print('Number of vacant sites:', self.vacant_sites)
-        print('Numer of unique substituent permutations:', len(unique_smiles), '\n')
-
-        self.unique_combinations = len(unique_smiles)
-
-        return unique_smiles
+        print('Numer of unique substituent permutations:', self.n_combinations, '\n')
 
 
     def get_substituent_permutations(self, template):
 
         """
-        Finds all combinations of user-specified substituents. A maximum
-        of two substituents may be selected at once.
+        Generator that yields all combinations of user-specified substituents.
 
         Arguments
         ---------
 
-        substituents : `list` user-specified SMILES strings representing substituents
-            to be combined with molecular skeleton.
+        template : `str` SMILES string representing aromatic skeleton and
+            available substitution sites.
 
-        vacant_sites : `int` numer of sites that can be substituted onto for a given
-            molecular skeleton.
-
-        Returns
+        Yields
         -------
 
-        permutations : `list` All permutations of two substituents plus
-            two bromine functional groups to be used to build supramolecules
+        smiles : `str` permutation of a given subset of substituents.
 
         """
 
