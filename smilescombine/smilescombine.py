@@ -4,6 +4,11 @@ import stk
 import rdkit, rdkit.Chem as rdkit
 import itertools
 
+class SpecificationError(Exception):
+    def __init__(self, message):
+        self.message = message
+
+
 class Combiner:
     """
     Base Combiner class. Used to combine an aromatic molecular skeleton
@@ -18,8 +23,8 @@ class Combiner:
     required connection atoms and their labels (required by STK) may also be specified.
     """
 
-    def __init__(self, skeleton, substituents, nmax=None, nconnect=1,
-                 connect_atom='Br', auto_placement=False):
+    def __init__(self, skeleton, substituents, nmax=None, nconnect=0,
+                 connect_atom='Br', auto_placement=True):
 
         self.skeleton_smiles = skeleton
         self.substituents = substituents
@@ -131,6 +136,16 @@ class Combiner:
 
 
 
-class SpecificationError(Exception):
-    def __init__(self, message):
-        self.message = message
+    def __str__(self):
+        string = 'Skeleton SMILES: ' + self.skeleton_smiles + '\n'
+        string += 'Substituents: ' + str(self.substituents) + '\n'
+        string += 'Max number of substitutions: ' + str(self.nmax) + '\n'
+        string += 'Possible substitution sites: ' + str(self.vacant_sites) + '\n'
+        string += 'Number of unique combinations: ' + str(len(self.combinations)) + '\n'
+        if self.nconnect > 0:
+            string += 'Connection points: ' + str(self.nconnect) + '\n'
+        return string
+
+
+    def __repr__(self):
+        return str(self)
