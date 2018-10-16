@@ -27,4 +27,16 @@ As shown above, the first argument to the class `Skeleton` is our molecular skel
 skeleton SMILES contain dummy atoms (in this case `(Br)`) in locations where functional groups may be substituted.
 
 
+## Installation & Requirements
+
+Simply clone the repository 
+
+#### rdkit
+smilescombine relies on rdkit, which can be installed via conda (recommended)
+```
+conda install -c rdkit rdkit
+```
+
+
+
 
