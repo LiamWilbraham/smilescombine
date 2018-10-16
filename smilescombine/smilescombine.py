@@ -12,13 +12,15 @@ class Combiner:
     molecules in *.mol file format.
     """
 
-    def __init__(self, skeleton, substituents, nmax=None, nconnect=1, connect_atom='Br'):
+    def __init__(self, skeleton, substituents, nmax=None, nconnect=1,
+                 connect_atom='Br', auto_placement=False):
 
         self.skeleton_smiles = skeleton
         self.substituents = substituents
         self.nmax = nmax
         self.nconnect = nconnect
         self.connect_atom = connect_atom
+        self.auto_placement = auto_placement
 
 
     def combine_substituents(self):
@@ -45,7 +47,11 @@ class Combiner:
         """
 
         smiles = []
-        template = self.skeleton_smiles.replace('(Br)', '{}')
+        if self.auto_placement:
+            template = self.skeleton_smiles.replace('c', 'c{}')
+        else:
+            template = self.skeleton_smiles.replace('(Br)', '{}')
+
         self.vacant_sites = template.count('{}')
 
         if self.nconnect > self.vacant_sites:
@@ -60,6 +66,7 @@ class Combiner:
         for smiles in self.get_substituent_permutations(template):
             if smiles not in unique_smiles:
                 unique_smiles.append(smiles)
+        unique_smiles = sorted(unique_smiles)
 
         print('Skeleton:', self.skeleton_smiles)
         print('Number of vacant sites:', self.vacant_sites)
@@ -112,8 +119,6 @@ class Combiner:
                 for permutation in list(itertools.permutations(combination)):
                     smiles = rdkit.MolToSmiles(rdkit.MolFromSmiles(template.format(*permutation)), canonical=True)
                     yield smiles
-
-        #permutations = sorted(set(permutations))
 
 
     def assign_ring_order(self, sub_combinations):
