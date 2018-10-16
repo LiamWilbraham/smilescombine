@@ -1,6 +1,5 @@
 # coding: utf-8
 
-import stk
 import rdkit, rdkit.Chem as rdkit
 import itertools
 
@@ -12,13 +11,14 @@ class Combiner:
     molecules in *.mol file format.
     """
 
-    def __init__(self, skeleton, substituents, nmax=None, nconnect=1, connect_atom='Br'):
+    def __init__(self, skeleton, substituents, nmax=None, nconnect=2, autoplacement=False, connect_atom='Br'):
 
         self.skeleton_smiles = skeleton
-        self.substituents = substituents
+        self.substituents = [''] + substituents
         self.nmax = nmax
         self.nconnect = nconnect
-        self.connect_atom = connect_atom
+        self.autoplacement = autoplacement
+        self.connect_atom = connect_type
 
 
     def combine_substituents(self):
@@ -45,32 +45,31 @@ class Combiner:
         """
 
         smiles = []
-        template = self.skeleton_smiles.replace('(Br)', '{}')
+        template = self.skeleton_smiles.replace(self.connect_atom, '{}')
         self.vacant_sites = template.count('{}')
 
         if self.nconnect > self.vacant_sites:
-            raise SpecificationError(
-                "Number of connections cannot be greater than the number of possible substitution sites.")
-        if self.nmax is not None:
-            if self.nconnect > self.nmax:
-                raise SpecificationError(
-                    "Number of connections cannot be greater than the maximum number of allowed substitutions.")
+            raise(SpecificationError
+                "Number of connections cannot be greater than the number of vacant sites.")
+        elif self.nconnect > self.nmax:
+            raise(SpecificationError
+                "Number of connections cannot be greater than maximum number of allowed substitutions.")
 
-        unique_smiles = []
-        for smiles in self.get_substituent_permutations(template):
-            if smiles not in unique_smiles:
-                unique_smiles.append(smiles)
+        perms = self.get_substituent_permutations()
+        smiles = [template.format(*perm) for perm in perms]
+        canonical_smiles = [rdkit.MolToSmiles(rdkit.MolFromSmiles(smi), canonical=True) for smi in smiles]
+        canonical_smiles = remove_duplicates(canonical_smiles)
 
         print('Skeleton:', self.skeleton_smiles)
         print('Number of vacant sites:', self.vacant_sites)
-        print('Numer of unique substituent permutations:', len(unique_smiles), '\n')
+        print('Numer of unique substituent permutations:', len(canonical_smiles), '\n')
 
-        self.unique_combinations = len(unique_smiles)
+        self.unique_combinations = len(canonical_smiles)
 
-        return unique_smiles
+        return canonical_smiles
 
 
-    def get_substituent_permutations(self, template):
+    def get_substituent_permutations(self):
 
         """
         Finds all combinations of user-specified substituents. A maximum
@@ -94,26 +93,27 @@ class Combiner:
         """
 
         if self.nmax is not None:
-            if self.nmax >=self.vacant_sites:
+            if self.nmax >= self.vacant_sites:
                 vacancies = self.vacant_sites - self.nconnect
             else:
                 vacancies = self.nmax - self.nconnect
         else:
             vacancies = self.vacant_sites - self.nconnect
 
+        permutations = []
         for i in range(vacancies+1):
-            combinations = itertools.product(self.substituents, repeat=i)
+            combinations = itertools.product(substituents, repeat=i)
 
-            combinations = [(list(i) + ['('+self.connect_atom+')']*self.nconnect) for i in combinations]
-            combinations = [i+['']*(self.vacant_sites - len(i)) for i in combinations]
+            combinations = [(list(i) + ['Br']*nconnect) for i in combinations]
             #combinations = self.assign_ring_order(combinations)
 
             for combination in combinations:
-                for permutation in list(itertools.permutations(combination)):
-                    smiles = rdkit.MolToSmiles(rdkit.MolFromSmiles(template.format(*permutation)), canonical=True)
-                    yield smiles
+                for permuation in list(itertools.permutations(
+                    combination+['']*(self.vacant_sites - len(combination)), self.vacant_sites)):
+                    permutations.append(tuple(permuation))
 
-        #permutations = sorted(set(permutations))
+        permutations = sorted(set(permutations))
+        return permutations
 
 
     def assign_ring_order(self, sub_combinations):
@@ -144,7 +144,6 @@ class Combiner:
         pass
 
 
-
 class SpecificationError(Exception):
     def __init__(self, message):
-        self.message = message
+            self.message = message
