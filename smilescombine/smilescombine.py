@@ -56,7 +56,8 @@ class Combiner:
     Combiner can be used to produce standalone substituted molecules, but is
     also intended for use in conjunction with STK (https://github.com/lukasturcani/stk)
     to construct structured libraries of supramolecules. Therefore, the number of
-    required connection atoms and their labels (required by STK) may also be specified.
+    required connection atoms and their labels (required by STK) may also be
+    specified.
     """
 
     def __init__(self, skeleton, substituents, nmax=2, nconnect=0,
@@ -79,7 +80,10 @@ class Combiner:
         """
 
         if self.auto_placement:
-            template = self.skeleton_smiles.replace('c', 'c{}')
+            mol_h = rdkit.MolFromSmiles(self.skeleton_smiles)
+            rdkit.AddHs(mol_h)
+            template = rdkit.MolToSmiles(mol_h, allHsExplicit=True)
+            template = template.replace('[cH]', 'c{}').replace('[c]', 'c')
         else:
             template = self.skeleton_smiles.replace('(Br)', '{}')
 
