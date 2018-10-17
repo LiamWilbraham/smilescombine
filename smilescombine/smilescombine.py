@@ -2,6 +2,7 @@
 
 import stk
 import rdkit, rdkit.Chem as rdkit
+from rdkit.Chem import rdMolDescriptors
 import itertools
 
 class SpecificationError(Exception):
@@ -64,7 +65,7 @@ class Combiner:
                  connect_atom='Br', auto_placement=True):
 
         self.skeleton_smiles = skeleton
-        self.substituents = substituents
+        self.substituents = self.assign_ring_order(skeleton, substituents)
         self.nmax = nmax
         self.nconnect = nconnect
         self.connect_atom = connect_atom
@@ -79,23 +80,7 @@ class Combiner:
         each of the substituents.
         """
 
-        if self.auto_placement:
-            mol_h = rdkit.MolFromSmiles(self.skeleton_smiles)
-            rdkit.AddHs(mol_h)
-            template = rdkit.MolToSmiles(mol_h, allHsExplicit=True)
-            template = template.replace('[cH]', 'c{}').replace('[c]', 'c')
-        else:
-            template = self.skeleton_smiles.replace('(Br)', '{}')
-
-        self.vacant_sites = template.count('{}')
-
-        if self.nconnect > self.vacant_sites:
-            raise SpecificationError(
-                "Number of connections cannot be greater than the number of possible substitution sites.")
-        if self.nmax is not None:
-            if self.nconnect > self.nmax:
-                raise SpecificationError(
-                    "Number of connections cannot be greater than the maximum number of allowed substitutions.")
+        template = self.get_skeleton_template()
 
         for smiles in self.get_substituent_permutations(template):
             if smiles not in self.combinations:
@@ -150,23 +135,77 @@ class Combiner:
                     yield smiles
 
 
-    def assign_ring_order(self, sub_combinations):
+    def get_skeleton_template(self):
 
         """
-        Numerically labels 'opening' and 'closing' of aromatic rings to facilitate
-        canonicalisation of smiles strings. Since any rings in the skeleton will
-        already be numerically labelled, the number of rings in the skeleton is
-        counted and substituent rings are labelled subsequently.
+        Converts skeleton SMILES string into template where possible
+        substitution sites are identified.
+
+        Returns
+        -------
+
+        template : :class:`str`
+            Pseudo-SMILES string with possible substitution sites indicated
+            by parentheses '{}'.
         """
 
-        for combination in sub_combinations:
-            m = rdkit.MolFromSmiles(self.skeleton_smiles)
-            ring_num = 1+ m.GetRingInfo().NumRings()
-            for index, smiles in enumerate(combination):
-                combination[index] = smiles.replace('x', str(ring_num))
-                ring_num += 1
+        if self.auto_placement:
+            mol_h = rdkit.MolFromSmiles(self.skeleton_smiles)
+            rdkit.AddHs(mol_h)
+            template = rdkit.MolToSmiles(mol_h, allHsExplicit=True)
+            template = template.replace('[cH]', 'c{}').replace('[c]', 'c')
+        else:
+            template = self.skeleton_smiles.replace('(Br)', '{}')
 
-        return sub_combinations
+        self.vacant_sites = template.count('{}')
+
+        if self.nconnect > self.vacant_sites:
+            raise SpecificationError(
+                "Number of connections cannot be greater than the number of possible substitution sites.")
+        if self.nmax is not None:
+            if self.nconnect > self.nmax:
+                raise SpecificationError(
+                    "Number of connections cannot be greater than the maximum number of allowed substitutions.")
+
+        return template
+
+
+    def assign_ring_order(self, skeleton, substituents):
+
+        """
+        Assures that ring numbering in aubstituents is compatible with the
+        number of rings present in the skeleton.
+
+        Arguments
+        ---------
+
+        skeleton : :class:`str`
+            SMILES string representing molecular skeleton onto which substituent
+            groups will be placed.
+
+        substituents : :class:`list`
+            A list of allowed substituents, represented by SMILES strings.
+
+        Returns
+        -------
+
+        substituents : :class:`list`
+            The list of allowed substituents, still represented by SMILES
+            strings, with their ring open/close numbering adjusted to be
+            compatible with the number of rings present in the skeleton.
+
+        """
+
+        n = rdMolDescriptors.CalcNumAromaticRings(rdkit.MolFromSmiles(skeleton))
+
+        for i, item in enumerate(substituents):
+            rings = rdMolDescriptors.CalcNumAromaticRings(rdkit.MolFromSmiles(item[1:-1]))
+            if rings > 0:
+                for j in reversed(range(rings+1)):
+                    item = item.replace(str(j), str(j+n))
+                substituents[i] = item
+
+        return substituents
 
 
     def write_smiles(self, combinations):
