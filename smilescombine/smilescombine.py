@@ -17,16 +17,41 @@ class Combiner:
     specified randomly or identified automatically (i.e. all available aromatic
     carbon atoms).
 
-    Arguments
-    ---------
+    Attributes
+    ----------
 
-    template : `str` SMILES string representing aromatic skeleton and
-        available substitution sites.
+    skeleton : :class:`str`
+        SMILES string representing molecular skeleton onto which substituent
+        groups will be placed. Two methods can be used to supply skeleton
+        SMILES:
+            1. An ordinary SMILES string (e.g. c1ccccc1) if smilescombine is
+            to automatically place substituents on available aromatic carbons.
 
-    Yields
-    -------
+            2. A modified SMILES string where substitution positions can be
+            specified manually, for example, indicated by Bromine atoms
+            (e.g. c1c(Br)cc(Br)cc1). The atom type indicating allowed
+            substitution positions should be the same as connect_atom (below).
 
-    smiles : `str` permutation of a given subset of substituents.
+    substituents : :class:`list`
+        A list of allowed substituents. Each substituent should be enclosed
+        within parentheses (e.g. ['(N(C)C)', '(N)', '(OC)', '(O)' '(S)']).
+
+    nmax : :class:`int` (default = ``2``)
+        Maxumum number of substitutions allowed for a given skeleton.
+
+    nconnect : :class:`int` (default = ``2``)
+        Number of 'connecting' atoms to be left on each substituted skeleton.
+        This is indended to be used in conjunction with STK to produce libraries
+        of supramolecules (https://github.com/lukasturcani/stk).
+
+    connect_atom : :class:`str` (default = ``Br``)
+        Atom type to be used both to indicate user-defined substitution positions
+        and for use as connection points for the definition of STK StructUnit
+        objects.
+
+    auto_placement : :class:`bool` (default = ``True``)
+        Specified whether substitution positions are decided automatically or
+        by the user.
 
     Combiner can be used to produce standalone substituted molecules, but is
     also intended for use in conjunction with STK (https://github.com/lukasturcani/stk)
@@ -34,7 +59,7 @@ class Combiner:
     required connection atoms and their labels (required by STK) may also be specified.
     """
 
-    def __init__(self, skeleton, substituents, nmax=None, nconnect=0,
+    def __init__(self, skeleton, substituents, nmax=2, nconnect=0,
                  connect_atom='Br', auto_placement=True):
 
         self.skeleton_smiles = skeleton
@@ -90,13 +115,13 @@ class Combiner:
         Arguments
         ---------
 
-        template : `str` SMILES string representing aromatic skeleton and
+        template : :class:`str` SMILES string representing aromatic skeleton and
             available substitution sites.
 
         Yields
         -------
 
-        smiles : `str` permutation of a given subset of substituents.
+        smiles : :class:`str` permutation of a given subset of substituents.
 
         """
 
