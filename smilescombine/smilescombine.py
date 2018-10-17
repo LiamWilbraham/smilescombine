@@ -17,6 +17,17 @@ class Combiner:
     specified randomly or identified automatically (i.e. all available aromatic
     carbon atoms).
 
+    Arguments
+    ---------
+
+    template : `str` SMILES string representing aromatic skeleton and
+        available substitution sites.
+
+    Yields
+    -------
+
+    smiles : `str` permutation of a given subset of substituents.
+
     Combiner can be used to produce standalone substituted molecules, but is
     also intended for use in conjunction with STK (https://github.com/lukasturcani/stk)
     to construct structured libraries of supramolecules. Therefore, the number of
@@ -60,12 +71,15 @@ class Combiner:
         for smiles in self.get_substituent_permutations(template):
             if smiles not in self.combinations:
                 self.combinations.append(smiles)
+
         self.combinations = sorted(self.combinations, reverse=True)
         self.n_combinations = len(self.combinations)
 
         print('Skeleton SMILES:', self.skeleton_smiles)
         print('Number of vacant sites:', self.vacant_sites)
         print('Numer of unique substituent permutations:', self.n_combinations, '\n')
+
+        self.write_smiles(self.combinations)
 
 
     def get_substituent_permutations(self, template):
@@ -126,14 +140,15 @@ class Combiner:
         return sub_combinations
 
 
-    def get_embedded_structures(permutations):
+    def write_smiles(self, combinations):
 
         """
-        Embeds structures and writes them in *.mol format
+        Writes SMILES to *.csv file
         """
 
-        pass
-
+        with open('SMILES.csv', 'w') as f:
+            for smi in combinations:
+                f.write(smi + '\n')
 
 
     def __str__(self):
