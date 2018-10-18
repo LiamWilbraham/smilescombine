@@ -1,1 +1,1 @@
-from .smilescombine import Combiner
+from .combiner import Combiner
