@@ -13,7 +13,7 @@ SMILES string of the molecular skeleton we will combine with functional groups
 and a list of those functional groups (`substituents`, represented by SMILES).
 
 ```python
-substituents = ['(N(C)C)', '(N)', '(OC)', '(O)', '(S)', '(C)', '(F)', '(Cl)', '(CC)', '(C=O)', '(C(=O)OC)']
+substituents = ['(N(C)C)', '(N)', '(OC)', '(O)', '(CC)', '(C=O)', '(C(=O)OC)']
 
 skeleton = Combiner('c1ccccc1', substituents, nmax=4, nconnect=0, auto_placement=True)
 skeleton.combine_substituents()
