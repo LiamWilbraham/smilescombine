@@ -1,42 +1,51 @@
   ## `smilescombine` :computer:
-Python library for combining smiles 'skeletons' with functional group substituents in a combinatorial fashion.
+Python library for combining smiles 'skeletons' with functional groups &
+substituents in a combinatorial fashion.
 
-`smilesenumerator` provides molecular building blocks (in the form of SMILES strings) that can be used in combination 
-supramolecular structure-building software such as `stk`. Alternatively, the bulding blocks can be used to generate molecular
-libraries in their own right.
+`smilescombine` provides molecular building blocks (in the form of SMILES strings)
+that can be used in combination with Supramolecular structure-building software such
+as `stk`. Alternatively, the bulding blocks can be used to generate
+structured molecular libraries in their own right.
 
 ## Functionality
-Using `polyhts` begins by initialising a class `Skeleton`, which accepts a SMILES string of the molecular skeleton we will
-combine with functional groups and a list of those functional groups (`substituents`, represented by SMILES).
+Using `smilescombine` begins by initialising a class `Combiner`, which accepts a
+SMILES string of the molecular skeleton we will combine with functional groups
+and a list of those functional groups (`substituents`, represented by SMILES).
 
 ```python
 substituents = ['(N(C)C)', '(N)', '(OC)', '(O)', '(S)', '(C)', '(F)', '(Cl)', '(CC)', '(C=O)', '(C(=O)OC)']
 
-skeleton = Skeleton('c1(Br)c(Br)c(Br)c(Br)c(Br)c1(Br)', substituents)
+skeleton = Combiner('c1ccccc1', substituents, nmax=4, nconnect=0, auto_placement=True)
+skeleton.combine_substituents()
 ```
 
-We can then use the `combine_substituents()` method of `Skeleton` to generate our substituted molecules. 
-```python
-combinations = skeleton.combine_substituents()
-```
-Now, the object `combinations` is a list of SMILES strings containing all possible positional and compositonal
-combinations of our molecular skeleton and the substituent SMILES supplied in `substituents`.
+We can then use the `combine_substituents()` method of `Combiner` to generate our
+molecular library for a this skeleton. With the above arguments, `combine_substituents()`
+will allow a maximum of 4 substitutions and place them automatically on all
+accessible aromatic carbon atoms within the skeleton.
+
+Now, the attribute `combinations` of the instance of the Combiner class `skeleton`
+is a list of SMILES strings containing all possible positional and compositonal
+combinations of our molecular skeleton and the substituent SMILES supplied by
+`substituents`.
 
 #### Defining a molecular skeleton SMILES
-As shown above, the first argument to the class `Skeleton` is our molecular skeleton of interest. Acceptable
-skeleton SMILES contain dummy atoms (in this case `(Br)`) in locations where functional groups may be substituted.
+If automatic placement of substituents is accectable, we can define an ordinary
+SMILES string. If we wish to specify where substitutions may take place, we can
+specify `auto_placement=False` within `Combiner` and supply a custom skeleton
+SMILES string:
 
+```python
+skeleton = Combiner('c1c(Br)cc(Br)cc1', substituents, nmax=4, nconnect=0, auto_placement=True)
+```
+Where allowed substitution sites are indicated by '(Br)' within the string.
 
 ## Installation & Requirements
 
-Simply clone the repository 
+Simply clone the repository
 
 #### rdkit
 smilescombine relies on rdkit, which can be installed via conda (recommended)
 ```
 conda install -c rdkit rdkit
 ```
-
-
-
-
