@@ -73,11 +73,17 @@ class Combiner:
         self.combinations = []
 
 
-    def combine_substituents(self):
+    def combine_substituents(filename, self):
 
         """
         Generates all possible unique structures formed from the skeleton &
         each of the substituents.
+
+        Arguments
+        ---------
+
+        filename : :class:`str` Path to and name of file into which
+        SMILES combinations will be written.
         """
 
         template = self.get_skeleton_template()
@@ -93,7 +99,7 @@ class Combiner:
         print('Number of vacant sites:', self.vacant_sites)
         print('Numer of unique substituent permutations:', self.n_combinations, '\n')
 
-        self.write_smiles(self.combinations)
+        self.write_smiles(filename, self.combinations)
 
 
     def get_substituent_permutations(self, template):
@@ -208,13 +214,13 @@ class Combiner:
         return substituents
 
 
-    def write_smiles(self, combinations):
+    def write_smiles(self, filename, combinations):
 
         """
         Writes SMILES to *.csv file
         """
 
-        with open('SMILES.csv', 'w') as f:
+        with open(filename, 'w') as f:
             for smi in combinations:
                 f.write(smi + '\n')
 
