@@ -73,7 +73,7 @@ class Combiner:
         self.combinations = []
 
 
-    def combine_substituents(filename, self):
+    def combine_substituents(self, filename):
 
         """
         Generates all possible unique structures formed from the skeleton &
