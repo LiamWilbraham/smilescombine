@@ -136,7 +136,7 @@ class Combiner:
             #combinations = self.assign_ring_order(combinations)
 
             for combination in combinations:
-                for permutation in list(itertools.permutations(combination)):
+                for permutation in set(itertools.permutations(combination)):
                     smiles = rdkit.MolToSmiles(rdkit.MolFromSmiles(template.format(*permutation)), canonical=True)
                     yield smiles
 
@@ -179,7 +179,7 @@ class Combiner:
     def assign_ring_order(self, skeleton, substituents):
 
         """
-        Assures that ring numbering in aubstituents is compatible with the
+        Assures that ring numbering in substituents is compatible with the
         number of rings present in the skeleton.
 
         Arguments
