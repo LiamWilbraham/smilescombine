@@ -160,6 +160,7 @@ class Combiner:
             rdkit.AddHs(mol_h)
             template = rdkit.MolToSmiles(mol_h, allHsExplicit=True)
             template = template.replace('[cH]', 'c{}').replace('[c]', 'c')
+            template = template.replace('[CH]', 'c{}').replace('[c]', 'c')
         else:
             template = self.skeleton_smiles.replace('(Br)', '{}')
 
