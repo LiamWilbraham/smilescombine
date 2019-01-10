@@ -73,7 +73,7 @@ class Combiner:
         self.combinations = []
 
 
-    def combine_substituents(self, filename):
+    def combine_substituents(self, filename=None, info=True):
 
         """
         Generates all possible unique structures formed from the skeleton &
@@ -82,8 +82,12 @@ class Combiner:
         Arguments
         ---------
 
-        filename : :class:`str` Path to and name of file into which
-        SMILES combinations will be written.
+        filename : :class:`str` (default = ``None``)
+            Path to and name of file into which SMILES combinations will be written.
+            If ``None``, no file is written.
+
+        info: :class:`bool` (default = ``True``)
+            Print summary of generated combinations.
         """
 
         template = self.get_skeleton_template()
@@ -95,11 +99,15 @@ class Combiner:
         self.combinations = sorted(self.combinations, reverse=True)
         self.n_combinations = len(self.combinations)
 
-        print('Skeleton SMILES:', self.skeleton_smiles)
-        print('Number of vacant sites:', self.vacant_sites)
-        print('Numer of unique substituent permutations:', self.n_combinations, '\n')
+        if info:
+            print('Skeleton SMILES:', self.skeleton_smiles)
+            print('Number of vacant sites:', self.vacant_sites)
+            print('Numer of unique substituent permutations:', self.n_combinations, '\n')
 
-        self.write_smiles(filename, self.combinations)
+        if filename is not None:
+            self.write_smiles(filename, self.combinations)
+
+        return self.combinations
 
 
     def get_substituent_permutations(self, template):
@@ -160,7 +168,7 @@ class Combiner:
             rdkit.AddHs(mol_h)
             template = rdkit.MolToSmiles(mol_h, allHsExplicit=True)
             template = template.replace('[cH]', 'c{}').replace('[c]', 'c')
-            template = template.replace('[CH]', 'c{}').replace('[c]', 'c')
+            template = template.replace('[CH]', 'C{}').replace('[C]', 'C')
         else:
             template = self.skeleton_smiles.replace('(Br)', '{}')
 
