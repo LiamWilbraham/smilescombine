@@ -65,7 +65,7 @@ class Combiner:
                  connect_atom='Br', auto_placement=True):
 
         self.skeleton_smiles = skeleton
-        self.substituents = self.assign_ring_order(skeleton, substituents)
+        self.substituents = substituents#self.assign_ring_order(skeleton, substituents)
         self.nmax = nmax
         self.nconnect = nconnect
         self.connect_atom = connect_atom
