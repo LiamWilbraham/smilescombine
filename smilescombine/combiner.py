@@ -1,6 +1,5 @@
 # coding: utf-8
 
-import stk
 import rdkit, rdkit.Chem as rdkit
 from rdkit.Chem import rdMolDescriptors
 import itertools
