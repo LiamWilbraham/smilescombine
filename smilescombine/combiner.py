@@ -91,9 +91,10 @@ class Combiner:
 
         template = self.get_skeleton_template()
 
+        all_combinations = []
         for smiles in self.get_substituent_permutations(template):
-            if smiles not in self.combinations:
-                self.combinations.append(smiles)
+            all_combinations.append(smiles)
+        self.combinations = set(all_combinations)
 
         self.combinations = sorted(self.combinations, reverse=True)
         self.n_combinations = len(self.combinations)
