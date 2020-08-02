@@ -48,8 +48,4 @@ smilescombine relies on rdkit, which can be installed via conda (recommended)
 $ conda install -c rdkit rdkit
 ```
 
-First clone the repository, then:
-```
-$ cd smilescombine
-$ pip install -e .
-```
+To install, simply do `pip install --user smilescombine` to get the latest version from PyPI.
