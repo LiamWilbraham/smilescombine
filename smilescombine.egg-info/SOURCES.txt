@@ -1,9 +1,0 @@
-README.md
-setup.cfg
-setup.py
-smilescombine/__init__.py
-smilescombine/combiner.py
-smilescombine.egg-info/PKG-INFO
-smilescombine.egg-info/SOURCES.txt
-smilescombine.egg-info/dependency_links.txt
-smilescombine.egg-info/top_level.txt
