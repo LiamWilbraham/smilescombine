@@ -42,10 +42,14 @@ Where allowed substitution sites are indicated by '(Br)' within the string.
 
 ## Installation & Requirements
 
-Simply clone the repository
-
 #### rdkit
 smilescombine relies on rdkit, which can be installed via conda (recommended)
 ```
-conda install -c rdkit rdkit
+$ conda install -c rdkit rdkit
+```
+
+First clone the repository, then:
+```
+$ cd smilescombine
+$ pip install -e .
 ```

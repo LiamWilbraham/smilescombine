@@ -64,7 +64,7 @@ class Combiner:
                  connect_atom='Br', auto_placement=True):
 
         self.skeleton_smiles = skeleton
-        self.substituents = substituents#self.assign_ring_order(skeleton, substituents)
+        self.substituents = substituents#self._assign_ring_order(skeleton, substituents)
         self.nmax = nmax
         self.nconnect = nconnect
         self.connect_atom = connect_atom
@@ -89,10 +89,10 @@ class Combiner:
             Print summary of generated combinations.
         """
 
-        template = self.get_skeleton_template()
+        template = self._get_skeleton_template()
 
         all_combinations = []
-        for smiles in self.get_substituent_permutations(template):
+        for smiles in self._get_substituent_permutations(template):
             all_combinations.append(smiles)
         self.combinations = set(all_combinations)
 
@@ -105,12 +105,12 @@ class Combiner:
             print('Numer of unique substituent permutations:', self.n_combinations, '\n')
 
         if filename is not None:
-            self.write_smiles(filename, self.combinations)
+            self._write_smiles(filename, self.combinations)
 
         return self.combinations
 
 
-    def get_substituent_permutations(self, template):
+    def _get_substituent_permutations(self, template):
 
         """
         Generator that yields all combinations of user-specified substituents.
@@ -141,7 +141,7 @@ class Combiner:
 
             combinations = [(list(i) + ['('+self.connect_atom+')']*self.nconnect) for i in combinations]
             combinations = [i+['']*(self.vacant_sites - len(i)) for i in combinations]
-            #combinations = self.assign_ring_order(combinations)
+            #combinations = self._assign_ring_order(combinations)
 
             for combination in combinations:
                 for permutation in set(itertools.permutations(combination)):
@@ -149,7 +149,7 @@ class Combiner:
                     yield smiles
 
 
-    def get_skeleton_template(self):
+    def _get_skeleton_template(self):
 
         """
         Converts skeleton SMILES string into template where possible
@@ -185,7 +185,7 @@ class Combiner:
         return template
 
 
-    def assign_ring_order(self, skeleton, substituents):
+    def _assign_ring_order(self, skeleton, substituents):
 
         """
         Assures that ring numbering in substituents is compatible with the
@@ -223,7 +223,7 @@ class Combiner:
         return substituents
 
 
-    def write_smiles(self, filename, combinations):
+    def _write_smiles(self, filename, combinations):
 
         """
         Writes SMILES to *.csv file
